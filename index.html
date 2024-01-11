@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Server Logs</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.0/socket.io.js"></script>
+    <script type="text/javascript" charset="utf-8">
+        document.addEventListener('DOMContentLoaded', function() {
+            var socket = io.connect(location.protocol + '//' + document.domain + ':' + location.port);
+
+            socket.on('connect', function() {
+                console.log('Websocket connected!');
+                socket.emit('my_event', {data: 'I\'m connected!'});
+            });
+
+            socket.on('log_update', function(msg) {
+                console.log("Received log update:", msg.data);
+                var logContainer = document.getElementById('logContainer');
+                var logEntry = document.createElement('p');
+                logEntry.textContent = msg.data;
+                logContainer.appendChild(logEntry);
+            });
+
+            socket.on('keepalive', function(msg) {
+                console.log(msg.data);
+            });
+
+            socket.on('disconnect', function() {
+                console.log('Websocket disconnected!');
+            });
+
+            socket.on('connect_error', function(error) {
+                console.error('Connection error:', error);
+            });
+        });
+    </script>
+</head>
+<body>
+    <h1>Server logs</h1>
+    <div id="logContainer" style="white-space: pre-wrap;"></div>
+</body>
+</html>
